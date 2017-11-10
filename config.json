@@ -1,0 +1,3 @@
+{
+    "database": "mongodb://trip_app_maker:trip_app_maker@ds251435.mlab.com:51435/trip-db"
+}

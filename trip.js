@@ -19,6 +19,7 @@
          },
          dateAndTime: {
              type: Date,
+             
              default: Date.now
          },
          expence: {

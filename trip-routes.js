@@ -4,7 +4,6 @@ var app = module.exports = express.Router();
 
 var Trip = require('./trip');
 
-
 app.post('/trips', function (req, res) {
     // console.log(req.body.users[0].username);
     if (!req.body.text) {

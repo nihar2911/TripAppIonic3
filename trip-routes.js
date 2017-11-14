@@ -5,44 +5,46 @@ var app = module.exports = express.Router();
 var Trip = require('./trip');
 
 app.post('/trips', function (req, res) {
-    // console.log(req.body.users[0].username);
-    if (!req.body.text) {
+    console.log(req.body);
+    if (!req.body.tripName) {
         return res.status(400).send({
             "succcess": false,
             "msg": "You need to send the data in trip"
         });
     }
-    var log = [];
-    var users = [];
-    users.push({
-        username: req.body.users[0].username,
-        TakeFromContri: req.body.users[0].TakeFromContri,
-        paidInCountri: req.body.users[0].paidInCountri
-    });
-    log.push({
-        contribution: {
-            amount: req.body.log[0].contribution.amount,
-            userName: req.body.log[0].contribution.userName
-        },
-        // dateAndTime: req.body.log[0].dateAndTime,
-        expence: {
-            amount: req.body.log[0].expence.amount,
-            itemOrThing: req.body.log[0].expence.itemOrThing,
-            paidFor: req.body.log[0].expence.paidFor,
-            paidby: req.body.log[0].expence.paidby
-        }
-    });
+
+    // var log = [];
+    // var users = [];
+    // users.push({
+    //     username: req.body.users[0].username,
+    //     TakeFromContri: req.body.users[0].TakeFromContri,
+    //     paidInCountri: req.body.users[0].paidInCountri
+    // });
+    // log.push({
+    //     contribution: {
+    //         amount: req.body.log[0].contribution.amount,
+    //         userName: req.body.log[0].contribution.userName
+    //     },
+    //     // dateAndTime: req.body.log[0].dateAndTime,
+    //     expence: {
+    //         amount: req.body.log[0].expence.amount,
+    //         itemOrThing: req.body.log[0].expence.itemOrThing,
+    //         paidFor: req.body.log[0].expence.paidFor,
+    //         paidby: req.body.log[0].expence.paidby
+    //     }
+    // });
     var newTrip = new Trip({
-        text: req.body.text,
+        // text: req.body.text,
         tripName: req.body.tripName,
         fund: {
             contribution: req.body.fund.contribution,
             expence: req.body.fund.expence,
             perHead: req.body.fund.perHead
         },
-        log: log,
-        users: users
+        // log: log,
+        // users: users
     });
+    console.log("Sending DATA",newTrip);
 
     newTrip.save(function (err) {
         if (err) {

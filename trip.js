@@ -2,11 +2,11 @@
  var Schema = mongoose.Schema;
 
  var TripSchema = new Schema({
-     text: {
-         type: String,
-         required: true
-     },
-     tripName: String,
+    //  text: String,
+     tripName: {
+        type: String,
+        required: true
+    },
      fund: {
          contribution: Number,
          expence: Number,
@@ -19,7 +19,6 @@
          },
          dateAndTime: {
              type: Date,
-             
              default: Date.now
          },
          expence: {

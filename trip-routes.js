@@ -5,7 +5,7 @@ var app = module.exports = express.Router();
 var Trip = require('./trip');
 
 app.post('/trips', function (req, res) {
-    console.log(req.body);
+    // console.log(req.body);
     if (!req.body.tripName) {
         return res.status(400).send({
             "succcess": false,
@@ -44,7 +44,7 @@ app.post('/trips', function (req, res) {
         // log: log,
         // users: users
     });
-    console.log("Sending DATA",newTrip);
+    // console.log("Sending DATA", newTrip);
 
     newTrip.save(function (err) {
         if (err) {
@@ -80,8 +80,30 @@ app.get('/trips', function (req, res) {
     });
 });
 
+app.get('/trips/:tripId', function (req, res) {
+    var idLocation = req.params.tripId;
+    Trip.find({
+        _id: idLocation
+    }, function (err, trips) {
+        if (err) {
+            return res.json({
+                "success": false,
+                "msg": "Error while retriving Trips",
+                "error": err
+            });
+        }
+        res.status(200).send({
+            "succcess": true,
+            "result": trips
+        })
+    });
+});
+
+
+
 app.put('/trips/:tripId', function (req, res) {
     var lectionId = req.params.tripId;
+    // console.log(req.body, lectionId);
     if (!lectionId || lectionId === "") {
         return res.json({
             "success": false,
@@ -89,15 +111,26 @@ app.put('/trips/:tripId', function (req, res) {
             "error": err
         });
     }
+    // var users = [];
+    // users.push({
+    //     username: req.body.users[0].username,
+    //     TakeFromContri: req.body.users[0].TakeFromContri,
+    //     paidInCountri: req.body.users[0].paidInCountri
+    // });
+    var users = {
+        username: req.body.username,
+        TakeFromContri: req.body.TakeFromContri,
+        paidInCountri: req.body.paidInCountri
+    };
+    // console.log("user to push in arry",users);
     Trip.findByIdAndUpdate(lectionId, {
-        $set: {
-            tripName: req.body.tripName,
-            text: req.body.text,
+        $push: {
+            users:users
         }
     }, {
         upsert: true
     }, function (req, update, err) {
-        console.log(update)
+        // console.log(update)
         if (err) {
             return res.json({
                 "success": false,

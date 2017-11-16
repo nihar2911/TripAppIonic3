@@ -103,7 +103,19 @@ app.get('/trips/:tripId', function (req, res) {
 
 app.put('/trips/:tripId', function (req, res) {
     var lectionId = req.params.tripId;
-    // console.log(req.body, lectionId);
+    console.log(req.body, lectionId);
+    var users = {
+        username: req.body.username,
+        TakeFromContri: req.body.TakeFromContri,
+        paidInCountri: req.body.paidInCountri
+    };
+    var functionToPerform = function () {
+        if (!req.body.username && req.body._id) {
+            return 'deletUser';
+        } else if (req.body.username) {
+            return 'addUser';
+        }
+    };
     if (!lectionId || lectionId === "") {
         return res.json({
             "success": false,
@@ -111,38 +123,59 @@ app.put('/trips/:tripId', function (req, res) {
             "error": err
         });
     }
-    // var users = [];
-    // users.push({
-    //     username: req.body.users[0].username,
-    //     TakeFromContri: req.body.users[0].TakeFromContri,
-    //     paidInCountri: req.body.users[0].paidInCountri
-    // });
-    var users = {
-        username: req.body.username,
-        TakeFromContri: req.body.TakeFromContri,
-        paidInCountri: req.body.paidInCountri
-    };
-    // console.log("user to push in arry",users);
-    Trip.findByIdAndUpdate(lectionId, {
-        $push: {
-            users:users
-        }
-    }, {
-        upsert: true
-    }, function (req, update, err) {
-        // console.log(update)
-        if (err) {
-            return res.json({
-                "success": false,
-                "msg": "Error while deleting Trips",
-                "error": err
+
+    switch (functionToPerform()) {
+        case 'addUser':
+            console.log("user to push in arry", users);
+            Trip.findByIdAndUpdate(lectionId, {
+                $push: {
+                    users: users
+                }
+            }, {
+                upsert: true
+            }, function (req, update, err) {
+                // console.log(update)
+                if (err) {
+                    return res.json({
+                        "success": false,
+                        "msg": "Error while deleting Trips",
+                        "error": err
+                    });
+                }
+                res.status(200).json({
+                    "success": true,
+                    "msg": "Trip udated"
+                });
             });
-        }
-        res.status(200).json({
-            "success": true,
-            "msg": "Trip udated"
-        });
-    });
+            break;
+        case 'deletUser':
+            console.log("user to Delete in array", req.body._id);
+            Trip.findByIdAndUpdate(lectionId, {
+                $pull: {
+                    users: {
+                        _id: req.body._id
+                    }
+                }
+            }, {
+                upsert: true,
+                multi: true
+            }, function (req, update, err) {
+                // console.log(update)
+                if (err) {
+                    return res.json({
+                        "success": false,
+                        "msg": "Error while deleting User",
+                        "error": err
+                    });
+                }
+                res.status(200).json({
+                    "success": true,
+                    "msg": "User Deleted"
+                });
+            });
+            break;
+    }
+
 });
 
 

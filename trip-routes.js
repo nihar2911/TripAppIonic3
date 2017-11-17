@@ -109,11 +109,15 @@ app.put('/trips/:tripId', function (req, res) {
         TakeFromContri: req.body.TakeFromContri,
         paidInCountri: req.body.paidInCountri
     };
+    var contribution = req.body.contribution;
+    var perHead = req.body.perHead;
     var functionToPerform = function () {
         if (!req.body.username && req.body._id) {
             return 'deletUser';
         } else if (req.body.username) {
             return 'addUser';
+        } else if (contribution) {
+            return 'updateContribution'
         }
     };
     if (!lectionId || lectionId === "") {
@@ -123,6 +127,7 @@ app.put('/trips/:tripId', function (req, res) {
             "error": err
         });
     }
+
 
     switch (functionToPerform()) {
         case 'addUser':
@@ -171,6 +176,31 @@ app.put('/trips/:tripId', function (req, res) {
                 res.status(200).json({
                     "success": true,
                     "msg": "User Deleted"
+                });
+            });
+            break;
+        case 'updateContribution':
+            console.log("Update Contribution", contribution);
+            Trip.findByIdAndUpdate(lectionId, {
+                $set: {
+                    'fund.contribution': contribution,
+                    'fund.perHead': perHead
+                }
+            }, {
+                upsert: false,
+                multi: true
+            }, function (req, update, err) {
+                // console.log(update)
+                if (err) {
+                    return res.json({
+                        "success": false,
+                        "msg": "Error while Adding Contribution",
+                        "error": err
+                    });
+                }
+                res.status(200).json({
+                    "success": true,
+                    "msg": "Contribution updated"
                 });
             });
             break;

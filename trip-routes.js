@@ -111,6 +111,8 @@ app.put('/trips/:tripId', function (req, res) {
     };
     var contribution = req.body.contribution;
     var perHead = req.body.perHead;
+    var userContri = req.body.userContri;
+    var userId = req.body.userId;
     var functionToPerform = function () {
         if (!req.body.username && req.body._id) {
             return 'deletUser';
@@ -180,29 +182,34 @@ app.put('/trips/:tripId', function (req, res) {
             });
             break;
         case 'updateContribution':
-            console.log("Update Contribution", contribution);
-            Trip.findByIdAndUpdate(lectionId, {
-                $set: {
-                    'fund.contribution': contribution,
-                    'fund.perHead': perHead
-                }
-            }, {
-                upsert: false,
-                multi: true
-            }, function (req, update, err) {
-                // console.log(update)
-                if (err) {
-                    return res.json({
-                        "success": false,
-                        "msg": "Error while Adding Contribution",
-                        "error": err
+            console.log("Update Contribution", contribution + "  user contri", userContri);
+            Trip.update({
+                   _id: lectionId,
+                    'users._id': userId
+                }, {
+                    $set: {
+                        'fund.contribution': contribution,
+                        'fund.perHead': perHead,
+                        'users.$.paidInCountri': userContri
+                    }
+                }, {
+                    upsert: false,
+                    multi: true
+                },
+                function (req, update, err) {
+                    // console.log(update)
+                    if (err) {
+                        return res.json({
+                            "success": false,
+                            "msg": "Error while Adding Contribution",
+                            "error": err
+                        });
+                    }
+                    res.status(200).json({
+                        "success": true,
+                        "msg": "Contribution updated"
                     });
-                }
-                res.status(200).json({
-                    "success": true,
-                    "msg": "Contribution updated"
                 });
-            });
             break;
     }
 

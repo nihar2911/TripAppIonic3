@@ -2,31 +2,23 @@
  var Schema = mongoose.Schema;
 
  var TripSchema = new Schema({
-    //  text: String,
+     //  text: String,
      tripName: {
-        type: String,
-        required: true
-    },
+         type: String,
+         required: true
+     },
      fund: {
          contribution: Number,
          expence: Number,
          perHead: Number
      },
      log: [{
-         contribution: {
-             amount: Number,
-             userName: String
-         },
          dateAndTime: {
              type: Date,
              default: Date.now
          },
-         expence: {
-             ammount: Number,
-             itemOrThing: String,
-             paidFor: String,
-             paidby: String
-         }
+         amount: Number,
+         itemOrThing: String,
      }],
      users: [{
          username: String,

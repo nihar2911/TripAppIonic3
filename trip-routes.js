@@ -113,6 +113,13 @@ app.put('/trips/:tripId', function (req, res) {
     var perHead = req.body.perHead;
     var userContri = req.body.userContri;
     var userId = req.body.userId;
+    var logExpenceAmount = req.body.amount;
+    var logThingOrItem = req.body.thingOrItem;
+    var log = {
+        amount: req.body.amount,
+        itemOrThing: req.body.thingOrItem,
+    };
+    var log_id = req.body.logId;
     var functionToPerform = function () {
         if (!req.body.username && req.body._id) {
             return 'deletUser';
@@ -120,6 +127,10 @@ app.put('/trips/:tripId', function (req, res) {
             return 'addUser';
         } else if (contribution) {
             return 'updateContribution'
+        } else if (logExpenceAmount && logThingOrItem) {
+            return 'addLog'
+        } else if (log_id) {
+            return 'removeLog'
         }
     };
     if (!lectionId || lectionId === "") {
@@ -133,10 +144,14 @@ app.put('/trips/:tripId', function (req, res) {
 
     switch (functionToPerform()) {
         case 'addUser':
-            console.log("user to push in arry", users);
+            console.log("user to push in array", users, req.body.totalContri);
             Trip.findByIdAndUpdate(lectionId, {
                 $push: {
                     users: users
+                },
+                $set: {
+                    'fund.contribution': req.body.totalContri,
+                    'fund.perHead': req.body.perHead
                 }
             }, {
                 upsert: true
@@ -184,7 +199,7 @@ app.put('/trips/:tripId', function (req, res) {
         case 'updateContribution':
             console.log("Update Contribution", contribution + "  user contri", userContri);
             Trip.update({
-                   _id: lectionId,
+                    _id: lectionId,
                     'users._id': userId
                 }, {
                     $set: {
@@ -210,6 +225,64 @@ app.put('/trips/:tripId', function (req, res) {
                         "msg": "Contribution updated"
                     });
                 });
+            break;
+        case 'addLog':
+            console.log("Log to push in array", log);
+            Trip.findByIdAndUpdate(lectionId, {
+                $set: {
+                    'fund.contribution': req.body.contri,
+                    'fund.expence': req.body.expence
+                },
+                $push: {
+                    log: log
+                }
+            }, {
+                upsert: true,
+                multi: true
+            }, function (req, update, err) {
+                // console.log(update)
+                if (err) {
+                    return res.json({
+                        "success": false,
+                        "msg": "Error while Updating log",
+                        "error": err
+                    });
+                }
+                res.status(200).json({
+                    "success": true,
+                    "msg": "log udated"
+                });
+            });
+            break;
+        case 'removeLog':
+            console.log("log to Delete in array", req.body.logId, req.body.contriAfterDeletingLog);
+            Trip.findByIdAndUpdate(lectionId, {
+                $pull: {
+                    log: {
+                        _id: req.body.logId
+                    }
+                },
+                $set: {
+                    'fund.expence': req.body.logAmount,
+                    'fund.contribution': req.body.contriAfterDeletingLog
+                }
+            }, {
+                upsert: true,
+                multi: true
+            }, function (req, update, err) {
+                // console.log(update)
+                if (err) {
+                    return res.json({
+                        "success": false,
+                        "msg": "Error while deleting log",
+                        "error": err
+                    });
+                }
+                res.status(200).json({
+                    "success": true,
+                    "msg": "Log Deleted"
+                });
+            });
             break;
     }
 

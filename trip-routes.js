@@ -121,7 +121,7 @@ app.put('/trips/:tripId', function (req, res) {
     };
     var log_id = req.body.logId;
     var functionToPerform = function () {
-        if (!req.body.username && req.body._id) {
+        if (userId && req.body.contriAfterDeletingUser) {
             return 'deletUser';
         } else if (req.body.username) {
             return 'addUser';
@@ -171,12 +171,15 @@ app.put('/trips/:tripId', function (req, res) {
             });
             break;
         case 'deletUser':
-            console.log("user to Delete in array", req.body._id);
+            console.log("user to Delete in array", userId);
             Trip.findByIdAndUpdate(lectionId, {
                 $pull: {
                     users: {
-                        _id: req.body._id
-                    }
+                        _id: userId
+                    },  
+                },
+                $set: {
+                    'fund.contribution': req.body.contriAfterDeletingUser,
                 }
             }, {
                 upsert: true,
